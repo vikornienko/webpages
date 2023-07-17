@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Project app
+    "appchallenges.apps.AppchallengesConfig",
 ]
 
 MIDDLEWARE = [
