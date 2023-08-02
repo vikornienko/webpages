@@ -1,7 +1,8 @@
 from django.shortcuts import render  # noqa: F401
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponseNotFound, HttpResponseRedirect, Http404
 
+ 
 monthly_chall = {
     "january": "Eat many meat and drink much beer!",
     "february": "Walk for at least 20 minutes every day!",
@@ -18,36 +19,36 @@ monthly_chall = {
 }
 
 def index(request):
-    list_items = ""
     months = list(monthly_chall.keys())
-    for month in months:
-        capitalized_month = month.capitalize()
-        month_path = reverse("appchallenges:challengemounth", args=[month])
-        list_items += f"<li><a href=\"{month_path}\">{capitalized_month}</a></li>"
-        
-    response_data = f"<ul>{list_items}</ul>"
-    return HttpResponse(response_data)
+    
+    return render(request, "appchallenges/index.html", {
+        "months": months
+    })
 
 
-def mounthly_challenge_by_number(request, month):
+def monthly_challenge_by_number(request, month):
     months = list(monthly_chall.keys())
 
     if month > len(months):
-        return HttpResponseNotFound("Invalid mounth")
+        return HttpResponseNotFound("Invalid month")
     
     forward_month = months[month - 1]
     """
     В функции reverse обязательно перед наименованием маршрута указывать имя приложения!
-    Например, как в данном случае - "appchallenges:challengemounth"
+    Например, как в данном случае - "appchallenges:challengemonth"
     """
-    redirect_path = reverse("appchallenges:challengemounth", args=(forward_month,))
+    redirect_path = reverse("appchallenges:challengemonth", args=(forward_month,))
     return HttpResponseRedirect(redirect_path)
 
 
-def mounthly_challenges(request, mounth):
+def monthly_challenges(request, month):
     try:
-        challenge_text = monthly_chall[mounth]
-        return HttpResponse(challenge_text)
+        challenge_text = monthly_chall[month]
+        return render(request, "appchallenges/challenge.html", {
+            "text": challenge_text,
+            "month_name": month
+        })
+        
     except:  # noqa: E722
-        return HttpResponseNotFound("Not supported!") 
+        raise Http404()
     
